@@ -1,14 +1,19 @@
 import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from './types'
 import { parseHeaders } from './tools/headers'
+import { createError } from './tools/error'
 
 export default function xhr(config: AxiosRequestConfig): AxiosPromise {
-  return new Promise(resolve => {
-    const { data = null, url, method = 'get', headers, responseType } = config
+  return new Promise((resolve, reject) => {
+    const { data = null, url, method = 'get', headers, responseType, timeout } = config
 
     const request = new XMLHttpRequest()
 
     if (responseType) {
       request.responseType = responseType
+    }
+
+    if (timeout) {
+      request.timeout = timeout
     }
 
     request.open(method.toUpperCase(), url, true)
@@ -28,6 +33,10 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
         return
       }
 
+      if (request.status === 0) {
+        return
+      }
+
       const responseHeaders = parseHeaders(request.getAllResponseHeaders())
       const responseData = responseType !== 'text' ? request.response : request.responseText
 
@@ -40,7 +49,27 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
         request: request
       }
 
-      resolve(response)
+      if (response.status >= 200 && response.status < 300) {
+        resolve(response)
+      } else {
+        reject(
+          createError(
+            `Request failed with status code ${response.status}`,
+            config,
+            response.statusText,
+            request,
+            response
+          )
+        )
+      }
+    }
+
+    request.onerror = function() {
+      reject(createError('Network Error', config, null, request))
+    }
+
+    request.ontimeout = function() {
+      reject(createError(`Timeout of ${timeout} ms expected`, config, 'ECONNABORTED', request))
     }
   })
 }
