@@ -32,7 +32,7 @@
  })
 
  router.get('/base/get', function(req, res) {
-   res.json(req.query)
+   res.json('123')
  })
 
  router.post('/base/post', function(req, res) {
@@ -70,6 +70,12 @@
        msg: 'hello world'
      })
    }, 3000)
+ })
+
+ router.post('/config/post', function(req, res) {
+   res.json({
+     msg: 'hello world'
+   })
  })
 
  app.use(router)
