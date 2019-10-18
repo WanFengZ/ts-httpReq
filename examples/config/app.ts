@@ -15,7 +15,7 @@ axios('/config/post', {
   console.log(res.data)
 })
 
-axios({
+const instance = axios.create({
   transformRequest: [
     (function(data) {
       return qs.stringify(data)
@@ -29,7 +29,10 @@ axios({
       }
       return data
     }
-  ],
+  ]
+})
+
+instance({
   url: '/config/post',
   method: 'post',
   data: {
@@ -38,3 +41,4 @@ axios({
 }).then((res) => {
   console.log(res.data)
 })
+

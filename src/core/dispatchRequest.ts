@@ -6,6 +6,10 @@ import { flattenHeaders, processHeaders } from '../tools/headers'
 import transform from './transfrom'
 
 export default function dispatchRequest(config: AxiosRequestConfig): AxiosPromise {
+  if (config.cancelToken) {
+    config.cancelToken.throwIfRequested()
+  }
+
   processConfig(config)
   return xhr(config).then(res => {
     return transformResponseData(res)

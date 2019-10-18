@@ -78,6 +78,15 @@
    })
  })
 
+ router.get('/config/get', function(req, res) {
+   setTimeout(() => {
+     res.json({
+       msg: 'hello world'
+     })
+   },5000)
+
+ })
+
  app.use(router)
 
  const port = process.env.PORT || 8080
